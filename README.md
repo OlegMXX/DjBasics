@@ -1,2 +1,2 @@
-# DjBasics
+# BraniacLMS
 It's educational platform!
