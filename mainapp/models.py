@@ -1,4 +1,5 @@
 from django.db import models
+
 from mainapp.managers.news_manager import NewsManager
 
 
