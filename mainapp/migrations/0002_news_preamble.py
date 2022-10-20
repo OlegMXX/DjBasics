@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='news',
-            name='preamble',
+            name='preambule',
             field=models.CharField(blank=True, max_length=1024, null=True, verbose_name='Preamble'),
         ),
     ]
