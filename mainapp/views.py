@@ -1,4 +1,5 @@
 import logging
+import pickle
 from django.conf import settings
 
 from django.contrib import messages
@@ -36,7 +37,7 @@ class MainPageView(TemplateView):
 
 class NewsListView(ListView):
     model = mainapp_models.News
-    paginate_by = 5
+    paginate_by = 2
 
     def get_queryset(self):
         return super().get_queryset().filter(deleted=False)
@@ -78,7 +79,7 @@ class CoursesListView(TemplateView):
 
 class CoursesDetailView(TemplateView):
     template_name = "mainapp/courses_detail.html"
-    
+
     def get_context_data(self, pk=None, **kwargs):
         logger.debug("Yet another log message")
         context = super(CoursesDetailView, self).get_context_data(**kwargs)
@@ -98,21 +99,30 @@ class CoursesDetailView(TemplateView):
                 context["feedback_form"] = mainapp_forms.CourseFeedbackForm(
                     course=context["course_object"], user=self.request.user
             )
+
         cached_feedback = cache.get(f"feedback_list_{pk}")
         if not cached_feedback:
             context["feedback_list"] = (
                 mainapp_models.CourseFeedback.objects.filter(
                     course=context["course_object"]
-                )  
+                )
                 .order_by("-created", "-rating")[:5]
                 .select_related()
             )
             cache.set(
                 f"feedback_list_{pk}", context["feedback_list"], timeout=300
-            ) # 5 minutes
+            )
+            # 5 minutes
+
+            # Archive object for tests --->
+            with open(
+                f"mainapp/fixtures/006_feedback_list_{pk}.bin", "wb"
+            ) as outf:
+                pickle.dump(context["feedback_list"], outf)
+            # <--- Archive object for tests
         else:
             context["feedback_list"] = cached_feedback
-
+            
         return context
 
 
